@@ -117,7 +117,7 @@
             <div id="niveauOptions"></div>
             <div class="button-container">
                 <button onclick="retourner('sectionJoueurs')">Retour</button>
-                <button onclick="commencerJeu()">Valider</button>
+                <button onclick="commencerJeu()">Commencer le jeu</button>
             </div>
             <p id="erreurNiveau" class="error"></p>
         </div>
@@ -128,7 +128,7 @@
             <div id="grilleJeu"></div>
             <div class="button-container">
                 <button onclick="retourner('sectionNiveau')">Retour</button>
-                <button onclick="calculerResultats()">Valider</button>
+                <button onclick="calculerResultats()">Calculer les résultats</button>
             </div>
             <p id="erreurGrille" class="error"></p>
         </div>
@@ -185,8 +185,10 @@
                 joueursDiv.appendChild(document.createElement('br'));
             }
 
-            // Passe automatiquement à l'étape suivante
-            enregistrerJoueurs();
+            const button = document.createElement('button');
+            button.textContent = 'Enregistrer les joueurs';
+            button.onclick = enregistrerJoueurs;
+            joueursDiv.appendChild(button);
         }
 
         function enregistrerJoueurs() {
@@ -195,20 +197,13 @@
             scoresDesJoueurs = Array(nombreDeJoueurs).fill(0);
             const erreurDiv = document.getElementById('erreurJoueurs');
 
-            let tousNomsValidés = true;
-
             for (let i = 0; i < nombreDeJoueurs; i++) {
                 const joueurNom = document.getElementById(`joueur${i}`).value.trim();
                 if (joueurNom === '') {
-                    tousNomsValidés = false;
-                    break;
+                    erreurDiv.textContent = 'Tous les noms des joueurs doivent être remplis.';
+                    return;
                 }
                 nomsDesJoueurs.push(joueurNom);
-            }
-
-            if (!tousNomsValidés) {
-                erreurDiv.textContent = 'Tous les noms des joueurs doivent être remplis.';
-                return;
             }
 
             showSection('sectionNiveau');
@@ -244,23 +239,23 @@
                 return;
             }
             definirBoissons(niveau);
-            afficherGrille();
             showSection('sectionGrille');
+            afficherGrille();
         }
 
         function definirBoissons(niveau) {
             switch (niveau) {
                 case 1:
-                    boissonsAlcoolisees = ['Bière', 'Vin rouge', 'Vin blanc'];
-                    boissonsNonAlcoolisees = ['Soda', 'Jus d’orange', 'Eau'];
-                    break;
-                case 2:
                     boissonsAlcoolisees = ['Bière', 'Vin rouge', 'Vin blanc', 'Whisky', 'Vodka'];
                     boissonsNonAlcoolisees = ['Soda', 'Jus d’orange', 'Eau', 'Limonade', 'Thé'];
                     break;
-                case 3:
-                    boissonsAlcoolisees = ['Bière', 'Vin rouge', 'Vin blanc', 'Whisky', 'Vodka', 'Rhum', 'Tequila', 'Cognac', 'Champagne'];
+                case 2:
+                    boissonsAlcoolisees = ['Bière', 'Vin rouge', 'Vin blanc', 'Whisky', 'Vodka', 'Rhum', 'Tequila'];
                     boissonsNonAlcoolisees = ['Soda', 'Jus d’orange', 'Eau', 'Limonade', 'Thé', 'Café', 'Milkshake'];
+                    break;
+                case 3:
+                    boissonsAlcoolisees = ['Bière', 'Vin rouge', 'Vin blanc', 'Whisky', 'Vodka', 'Rhum', 'Tequila', 'Cognac', 'Champagne', 'Liqueur', 'Gin', 'Pina Colada', 'Mojito', 'Margarita', 'Tequila Sunrise', 'Sidecar'];
+                    boissonsNonAlcoolisees = ['Soda', 'Jus d’orange', 'Eau', 'Limonade', 'Thé', 'Café', 'Milkshake', 'Smoothie', 'Chocolat chaud', 'Infusion'];
                     break;
             }
             boissonsDisponibles = [...boissonsAlcoolisees, ...boissonsNonAlcoolisees];
