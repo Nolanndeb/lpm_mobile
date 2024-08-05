@@ -195,13 +195,20 @@
             scoresDesJoueurs = Array(nombreDeJoueurs).fill(0);
             const erreurDiv = document.getElementById('erreurJoueurs');
 
+            let tousNomsValidés = true;
+
             for (let i = 0; i < nombreDeJoueurs; i++) {
                 const joueurNom = document.getElementById(`joueur${i}`).value.trim();
                 if (joueurNom === '') {
-                    erreurDiv.textContent = 'Tous les noms des joueurs doivent être remplis.';
-                    return;
+                    tousNomsValidés = false;
+                    break;
                 }
                 nomsDesJoueurs.push(joueurNom);
+            }
+
+            if (!tousNomsValidés) {
+                erreurDiv.textContent = 'Tous les noms des joueurs doivent être remplis.';
+                return;
             }
 
             showSection('sectionNiveau');
@@ -237,23 +244,23 @@
                 return;
             }
             definirBoissons(niveau);
-            showSection('sectionGrille');
             afficherGrille();
+            showSection('sectionGrille');
         }
 
         function definirBoissons(niveau) {
             switch (niveau) {
                 case 1:
+                    boissonsAlcoolisees = ['Bière', 'Vin rouge', 'Vin blanc'];
+                    boissonsNonAlcoolisees = ['Soda', 'Jus d’orange', 'Eau'];
+                    break;
+                case 2:
                     boissonsAlcoolisees = ['Bière', 'Vin rouge', 'Vin blanc', 'Whisky', 'Vodka'];
                     boissonsNonAlcoolisees = ['Soda', 'Jus d’orange', 'Eau', 'Limonade', 'Thé'];
                     break;
-                case 2:
-                    boissonsAlcoolisees = ['Bière', 'Vin rouge', 'Vin blanc', 'Whisky', 'Vodka', 'Rhum', 'Tequila'];
-                    boissonsNonAlcoolisees = ['Soda', 'Jus d’orange', 'Eau', 'Limonade', 'Thé', 'Café', 'Milkshake'];
-                    break;
                 case 3:
-                    boissonsAlcoolisees = ['Bière', 'Vin rouge', 'Vin blanc', 'Whisky', 'Vodka', 'Rhum', 'Tequila', 'Cognac', 'Champagne', 'Liqueur', 'Gin', 'Pina Colada', 'Mojito', 'Margarita', 'Tequila Sunrise', 'Sidecar'];
-                    boissonsNonAlcoolisees = ['Soda', 'Jus d’orange', 'Eau', 'Limonade', 'Thé', 'Café', 'Milkshake', 'Smoothie', 'Chocolat chaud', 'Infusion'];
+                    boissonsAlcoolisees = ['Bière', 'Vin rouge', 'Vin blanc', 'Whisky', 'Vodka', 'Rhum', 'Tequila', 'Cognac', 'Champagne'];
+                    boissonsNonAlcoolisees = ['Soda', 'Jus d’orange', 'Eau', 'Limonade', 'Thé', 'Café', 'Milkshake'];
                     break;
             }
             boissonsDisponibles = [...boissonsAlcoolisees, ...boissonsNonAlcoolisees];
