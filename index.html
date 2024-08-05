@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Le Petit Montagner</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .section {
+            display: none;
+        }
+        .section.active {
+            display: block;
+        }
+        input[type="number"], input[type="text"], select {
+            padding: 8px;
+            margin: 8px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: calc(100% - 20px);
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 10px 0;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 12px;
+            text-align: center;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .error {
+            color: red;
+            font-size: 14px;
+        }
+        .button-container {
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                width: 95%;
+                padding: 10px;
+            }
+            button {
+                width: calc(100% - 20px);
+                padding: 15px;
+            }
+            input[type="number"], input[type="text"], select {
+                width: calc(100% - 16px);
+                margin: 5px 0;
+            }
+            th, td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Section 1: Sélection du nombre de joueurs et noms -->
+        <div id="sectionJoueurs" class="section active">
+            <h1>Le Petit Montagner</h1>
+            <h2>Étape 1 : Entrez le nombre de joueurs</h2>
+            <label for="nombreDeJoueurs">Nombre de joueurs:</label>
+            <input type="number" id="nombreDeJoueurs" min="1">
+            <div id="formulaireJoueurs"></div>
+            <button onclick="initialiserJoueurs()">Valider</button>
+            <p id="erreurJoueurs" class="error"></p>
+        </div>
+
+        <!-- Section 2: Sélection du niveau -->
+        <div id="sectionNiveau" class="section">
+            <h2>Étape 2 : Choisissez un niveau</h2>
+            <div id="niveauOptions"></div>
+            <div class="button-container">
+                <button onclick="retourner('sectionJoueurs')">Retour</button>
+                <button onclick="commencerJeu()">Commencer le jeu</button>
+            </div>
+            <p id="erreurNiveau" class="error"></p>
+        </div>
+
+        <!-- Section 3: Renseignement des scores -->
+        <div id="sectionGrille" class="section">
+            <h2>Étape 3 : Renseignement des scores</h2>
+            <div id="grilleJeu"></div>
+            <div class="button-container">
+                <button onclick="retourner('sectionNiveau')">Retour</button>
+                <button onclick="calculerResultats()">Calculer les résultats</button>
+            </div>
+            <p id="erreurGrille" class="error"></p>
+        </div>
+
+        <!-- Section 4: Résultats -->
+        <div id="sectionResultats" class="section">
+            <h2>Étape 4 : Résultats</h2>
+            <div id="resultatsJeu"></div>
+            <div class="button-container">
+                <button onclick="retourner('sectionGrille')">Retour</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let nomsDesJoueurs = [];
+        let scoresDesJoueurs = [];
+        let boissonsAlcoolisees = [];
+        let boissonsNonAlcoolisees = [];
+        let boissonsDisponibles = [];
+        let boissonsDistribuees = [];
+
+        function showSection(id) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(id).classList.add('active');
+        }
+
+        function retourner(section) {
+            showSection(section);
+        }
+
+        function initialiserJoueurs() {
+            const nombreDeJoueurs = parseInt(document.getElementById('nombreDeJoueurs').value);
+            const joueursDiv = document.getElementById('formulaireJoueurs');
+            const erreurDiv = document.getElementById('erreurJoueurs');
+            joueursDiv.innerHTML = '';
+            erreurDiv.textContent = '';
+
+            if (isNaN(nombreDeJoueurs) || nombreDeJoueurs < 1) {
+                erreurDiv.textContent = 'Veuillez entrer un nombre de joueurs valide.';
+                return;
+            }
+
+            for (let i = 0; i < nombreDeJoueurs; i++) {
+                const label = document.createElement('label');
+                label.textContent = `Nom du joueur ${i + 1}: `;
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.id = `joueur${i}`;
+                joueursDiv.appendChild(label);
+                joueursDiv.appendChild(input);
+                joueursDiv.appendChild(document.createElement('br'));
+            }
+
+            const button = document.createElement('button');
+            button.textContent = 'Enregistrer les joueurs';
+            button.onclick = enregistrerJoueurs;
+            joueursDiv.appendChild(button);
+        }
+
+        function enregistrerJoueurs() {
+            const nombreDeJoueurs = parseInt(document.getElementById('nombreDeJoueurs').value);
+            nomsDesJoueurs = [];
+            scoresDesJoueurs = Array(nombreDeJoueurs).fill(0);
+            const erreurDiv = document.getElementById('erreurJoueurs');
+
+            for (let i = 0; i < nombreDeJoueurs; i++) {
+                const joueurNom = document.getElementById(`joueur${i}`).value.trim();
+                if (joueurNom === '') {
+                    erreurDiv.textContent = 'Tous les noms des joueurs doivent être remplis.';
+                    return;
+                }
+                nomsDesJoueurs.push(joueurNom);
+            }
+
+            showSection('sectionNiveau');
+            afficherNiveau();
+        }
+
+        function afficherNiveau() {
+            const niveauDiv = document.getElementById('niveauOptions');
+            const erreurDiv = document.getElementById('erreurNiveau');
+            niveauDiv.innerHTML = '';
+            erreurDiv.textContent = '';
+
+            const label = document.createElement('label');
+            label.textContent = 'Choisissez un niveau: ';
+            niveauDiv.appendChild(label);
+
+            const select = document.createElement('select');
+            select.id = 'niveauSelect';
+            const niveaux = ['Niveau 1', 'Niveau 2', 'Niveau 3'];
+            niveaux.forEach((niveau, index) => {
+                const option = document.createElement('option');
+                option.value = index + 1;
+                option.textContent = niveau;
+                select.appendChild(option);
+            });
+            niveauDiv.appendChild(select);
+        }
+
+        function commencerJeu() {
+            const niveau = parseInt(document.getElementById('niveauSelect').value);
+            if (isNaN(niveau)) {
+                document.getElementById('erreurNiveau').textContent = 'Veuillez sélectionner un niveau.';
+                return;
+            }
+            definirBoissons(niveau);
+            showSection('sectionGrille');
+            afficherGrille();
+        }
+
+        function definirBoissons(niveau) {
+            switch (niveau) {
+                case 1:
+                    boissonsAlcoolisees = ['Bière', 'Vin rouge', 'Vin blanc', 'Whisky', 'Vodka'];
+                    boissonsNonAlcoolisees = ['Soda', 'Jus d’orange', 'Eau', 'Limonade', 'Thé'];
+                    break;
+                case 2:
+                    boissonsAlcoolisees = ['Bière', 'Vin rouge', 'Vin blanc', 'Whisky', 'Vodka', 'Rhum', 'Tequila'];
+                    boissonsNonAlcoolisees = ['Soda', 'Jus d’orange', 'Eau', 'Limonade', 'Thé', 'Café', 'Milkshake'];
+                    break;
+                case 3:
+                    boissonsAlcoolisees = ['Bière', 'Vin rouge', 'Vin blanc', 'Whisky', 'Vodka', 'Rhum', 'Tequila', 'Cognac', 'Champagne', 'Liqueur', 'Gin', 'Pina Colada', 'Mojito', 'Margarita', 'Tequila Sunrise', 'Sidecar'];
+                    boissonsNonAlcoolisees = ['Soda', 'Jus d’orange', 'Eau', 'Limonade', 'Thé', 'Café', 'Milkshake', 'Smoothie', 'Chocolat chaud', 'Infusion'];
+                    break;
+            }
+            boissonsDisponibles = [...boissonsAlcoolisees, ...boissonsNonAlcoolisees];
+        }
+
+        function afficherGrille() {
+            const grilleDiv = document.getElementById('grilleJeu');
+            const erreurDiv = document.getElementById('erreurGrille');
+            grilleDiv.innerHTML = '';
+            erreurDiv.textContent = '';
+
+            const table = document.createElement('table');
+            const headerRow = document.createElement('tr');
+
+            const thEmpty = document.createElement('th');
+            headerRow.appendChild(thEmpty);
+
+            const thTour = document.createElement('th');
+            thTour.textContent = 'Tour';
+            headerRow.appendChild(thTour);
+
+            const thTotal = document.createElement('th');
+            thTotal.textContent = 'Total';
+            headerRow.appendChild(thTotal);
+
+            table.appendChild(headerRow);
+
+            nomsDesJoueurs.forEach((joueur, index) => {
+                const row = document.createElement('tr');
+                const th = document.createElement('th');
+                th.textContent = joueur;
+                row.appendChild(th);
+
+                const tdTour = document.createElement('td');
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.min = '0';
+                input.max = '60';
+                input.id = `score${index}`;
+                input.oninput = () => mettreAJourScore(index);
+                tdTour.appendChild(input);
+                row.appendChild(tdTour);
+
+                const tdTotal = document.createElement('td');
+                tdTotal.id = `total${index}`;
+                tdTotal.textContent = '0';
+                row.appendChild(tdTotal);
+
+                table.appendChild(row);
+            });
+
+            grilleDiv.appendChild(table);
+        }
+
+        function mettreAJourScore(joueurIndex) {
+            const score = parseInt(document.getElementById(`score${joueurIndex}`).value) || 0;
+
+            if (score >= 30) {
+                scoresDesJoueurs[joueurIndex] = 0;
+                alert(`Le score du joueur ${nomsDesJoueurs[joueurIndex]} est annulé car supérieur ou égal à 30.`);
+            } else {
+                scoresDesJoueurs[joueurIndex] = score;
+            }
+
+            document.getElementById(`total${joueurIndex}`).textContent = scoresDesJoueurs[joueurIndex];
+        }
+
+        function calculerResultats() {
+            const scoresInvalides = Array.from(document.querySelectorAll('input[type="number"]')).some(input => input.value === '');
+            if (scoresInvalides) {
+                document.getElementById('erreurGrille').textContent = 'Tous les scores doivent être remplis.';
+                return;
+            }
+            afficherResultats();
+        }
+
+        function afficherResultats() {
+            const resultatsDiv = document.getElementById('resultatsJeu');
+            resultatsDiv.innerHTML = '<h2>Scores des joueurs:</h2>';
+
+            let minScore = Math.min(...scoresDesJoueurs);
+            let perdantIndex = scoresDesJoueurs.indexOf(minScore);
+
+            let boissonsPourResultats = [...boissonsDisponibles];
+            boissonsPourResultats = boissonsPourResultats.sort(() => Math.random() - 0.5);
+
+            boissonsDistribuees = [];
+            nomsDesJoueurs.forEach((joueur, index) => {
+                const p = document.createElement('p');
+                const boisson = boissonsPourResultats.shift();
+                boissonsDistribuees.push({ joueur, boisson });
+                p.textContent = `${joueur}: ${scoresDesJoueurs[index]} points - Boisson: ${boisson}`;
+                resultatsDiv.appendChild(p);
+            });
+
+            const perdant = document.createElement('h3');
+            perdant.textContent = `Le perdant est ${nomsDesJoueurs[perdantIndex]} avec ${scoresDesJoueurs[perdantIndex]} points. Il doit payer la tournée.`;
+            resultatsDiv.appendChild(perdant);
+
+            showSection('sectionResultats');
+        }
+
+        showSection('sectionJoueurs');
+    </script>
+</body>
+</html>
