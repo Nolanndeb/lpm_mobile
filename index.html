@@ -117,7 +117,7 @@
             <div id="niveauOptions"></div>
             <div class="button-container">
                 <button onclick="retourner('sectionJoueurs')">Retour</button>
-                <button onclick="commencerJeu()">Commencer le jeu</button>
+                <button onclick="commencerJeu()">Valider</button>
             </div>
             <p id="erreurNiveau" class="error"></p>
         </div>
@@ -128,7 +128,7 @@
             <div id="grilleJeu"></div>
             <div class="button-container">
                 <button onclick="retourner('sectionNiveau')">Retour</button>
-                <button onclick="calculerResultats()">Calculer les résultats</button>
+                <button onclick="calculerResultats()">Valider</button>
             </div>
             <p id="erreurGrille" class="error"></p>
         </div>
@@ -185,10 +185,8 @@
                 joueursDiv.appendChild(document.createElement('br'));
             }
 
-            const button = document.createElement('button');
-            button.textContent = 'Enregistrer les joueurs';
-            button.onclick = enregistrerJoueurs;
-            joueursDiv.appendChild(button);
+            // Passe automatiquement à l'étape suivante
+            enregistrerJoueurs();
         }
 
         function enregistrerJoueurs() {
