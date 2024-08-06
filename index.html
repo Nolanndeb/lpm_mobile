@@ -10,6 +10,7 @@
             background-color: #f4f4f4;
             margin: 0;
             padding: 0;
+            position: relative;
         }
         .container {
             width: 90%;
@@ -30,7 +31,7 @@
         .section.active {
             display: block;
         }
-        input[type="number"], input[type="text"], select {
+        input[type="number"], input[type="text"], select, textarea {
             padding: 8px;
             margin: 8px 0;
             border: 1px solid #ccc;
@@ -86,13 +87,43 @@
             button {
                 font-size: 14px;
             }
-            input[type="number"], input[type="text"], select {
+            input[type="number"], input[type="text"], select, textarea {
                 font-size: 14px;
                 padding: 12px;
             }
             th, td {
                 padding: 8px;
             }
+        }
+        .admin-button {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background-color: #ff5722;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .admin-button:hover {
+            background-color: #e64a19;
+        }
+        .admin-section {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 350px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .admin-section.active {
+            display: block;
         }
     </style>
 </head>
@@ -140,13 +171,45 @@
         </div>
     </div>
 
+    <!-- Interface Admin -->
+    <div id="adminSection" class="admin-section">
+        <h2>Interface Admin</h2>
+        <label for="niveauAdmin">Choisissez un niveau:</label>
+        <select id="niveauAdmin" onchange="chargerBoissonsNiveau()">
+            <option value="1">Niveau 1</option>
+            <option value="2">Niveau 2</option>
+            <option value="3">Niveau 3</option>
+        </select>
+        <br>
+        <label for="alcoolisees">Boissons alcoolisées:</label>
+        <textarea id="alcoolisees" rows="4" style="width: 100%;" placeholder="Entrez les boissons alcoolisées séparées par des virgules..."></textarea>
+        <br>
+        <label for="nonAlcoolisees">Boissons non alcoolisées:</label>
+        <textarea id="nonAlcoolisees" rows="4" style="width: 100%;" placeholder="Entrez les boissons non alcoolisées séparées par des virgules..."></textarea>
+        <br>
+        <button onclick="sauvegarderBoissons()">Sauvegarder</button>
+        <button onclick="fermerAdmin()">Fermer</button>
+        <p id="erreurAdmin" class="error"></p>
+    </div>
+
+    <button class="admin-button" onclick="ouvrirAdmin()">Admin</button>
+
     <script>
         let nomsDesJoueurs = [];
         let scoresDesJoueurs = [];
-        let boissonsAlcoolisees = [];
-        let boissonsNonAlcoolisees = [];
+        let boissonsAlcoolisees = {
+            1: ['Bière', 'Vin rouge', 'Vin blanc', 'Whisky', 'Vodka'],
+            2: ['Bière', 'Vin rouge', 'Vin blanc', 'Whisky', 'Vodka', 'Rhum', 'Tequila'],
+            3: ['Bière', 'Vin rouge', 'Vin blanc', 'Whisky', 'Vodka', 'Rhum', 'Tequila', 'Cognac', 'Champagne', 'Liqueur', 'Gin', 'Pina Colada', 'Mojito', 'Margarita', 'Tequila Sunrise', 'Sidecar']
+        };
+        let boissonsNonAlcoolisees = {
+            1: ['Soda', 'Jus d’orange', 'Eau', 'Limonade', 'Thé'],
+            2: ['Soda', 'Jus d’orange', 'Eau', 'Limonade', 'Thé', 'Café', 'Milkshake'],
+            3: ['Soda', 'Jus d’orange', 'Eau', 'Limonade', 'Thé', 'Café', 'Milkshake', 'Smoothie', 'Chocolat chaud', 'Infusion']
+        };
         let boissonsDisponibles = [];
         let boissonsDistribuees = [];
+        let codeAdmin = '2024';
 
         function showSection(id) {
             document.querySelectorAll('.section').forEach(section => {
@@ -166,14 +229,13 @@
             joueursDiv.innerHTML = '';
             erreurDiv.textContent = '';
 
-            if (isNaN(nombreDeJoueurs) || nombreDeJoueurs < 1) {
-                erreurDiv.textContent = 'Veuillez entrer un nombre de joueurs valide.';
+            if (isNaN(nombreDeJoueurs) || nombreDeJoueurs <= 0) {
                 return;
             }
 
             for (let i = 0; i < nombreDeJoueurs; i++) {
                 const label = document.createElement('label');
-                label.textContent = `Nom du joueur ${i + 1}: `;
+                label.textContent = `Nom du joueur ${i + 1}:`;
                 const input = document.createElement('input');
                 input.type = 'text';
                 input.id = `joueur${i}`;
@@ -182,17 +244,17 @@
                 joueursDiv.appendChild(document.createElement('br'));
             }
 
-            const button = document.createElement('button');
-            button.textContent = 'Enregistrer les joueurs';
-            button.onclick = enregistrerJoueurs;
-            joueursDiv.appendChild(button);
+            const boutonValider = document.createElement('button');
+            boutonValider.textContent = 'Valider';
+            boutonValider.onclick = validerJoueurs;
+            joueursDiv.appendChild(boutonValider);
         }
 
-        function enregistrerJoueurs() {
+        function validerJoueurs() {
             const nombreDeJoueurs = parseInt(document.getElementById('nombreDeJoueurs').value);
-            nomsDesJoueurs = [];
-            scoresDesJoueurs = Array(nombreDeJoueurs).fill(0);
             const erreurDiv = document.getElementById('erreurJoueurs');
+            nomsDesJoueurs = [];
+            erreurDiv.textContent = '';
 
             for (let i = 0; i < nombreDeJoueurs; i++) {
                 const joueurNom = document.getElementById(`joueur${i}`).value.trim();
@@ -241,21 +303,7 @@
         }
 
         function definirBoissons(niveau) {
-            switch (niveau) {
-                case 1:
-                    boissonsAlcoolisees = ['Bière', 'Vin rouge', 'Vin blanc', 'Whisky', 'Vodka'];
-                    boissonsNonAlcoolisees = ['Soda', 'Jus d’orange', 'Eau', 'Limonade', 'Thé'];
-                    break;
-                case 2:
-                    boissonsAlcoolisees = ['Bière', 'Vin rouge', 'Vin blanc', 'Whisky', 'Vodka', 'Rhum', 'Tequila'];
-                    boissonsNonAlcoolisees = ['Soda', 'Jus d’orange', 'Eau', 'Limonade', 'Thé', 'Café', 'Milkshake'];
-                    break;
-                case 3:
-                    boissonsAlcoolisees = ['Bière', 'Vin rouge', 'Vin blanc', 'Whisky', 'Vodka', 'Rhum', 'Tequila', 'Cognac', 'Champagne', 'Liqueur', 'Gin', 'Pina Colada', 'Mojito', 'Margarita', 'Tequila Sunrise', 'Sidecar'];
-                    boissonsNonAlcoolisees = ['Soda', 'Jus d’orange', 'Eau', 'Limonade', 'Thé', 'Café', 'Milkshake', 'Smoothie', 'Chocolat chaud', 'Infusion'];
-                    break;
-            }
-            boissonsDisponibles = [...boissonsAlcoolisees, ...boissonsNonAlcoolisees];
+            boissonsDisponibles = [...boissonsAlcoolisees[niveau], ...boissonsNonAlcoolisees[niveau]];
         }
 
         function afficherGrille() {
@@ -353,6 +401,48 @@
             resultatsDiv.appendChild(perdant);
 
             showSection('sectionResultats');
+        }
+
+        function ouvrirAdmin() {
+            const code = prompt('Entrez le code admin:');
+            if (code === codeAdmin) {
+                document.getElementById('adminSection').classList.add('active');
+                chargerBoissonsNiveau();
+            } else {
+                alert('Code incorrect.');
+            }
+        }
+
+        function fermerAdmin() {
+            document.getElementById('adminSection').classList.remove('active');
+        }
+
+        function chargerBoissonsNiveau() {
+            const niveau = document.getElementById('niveauAdmin').value;
+            const alcoolisees = boissonsAlcoolisees[niveau].join(', ');
+            const nonAlcoolisees = boissonsNonAlcoolisees[niveau].join(', ');
+
+            document.getElementById('alcoolisees').value = alcoolisees;
+            document.getElementById('nonAlcoolisees').value = nonAlcoolisees;
+        }
+
+        function sauvegarderBoissons() {
+            const niveau = document.getElementById('niveauAdmin').value;
+            const alcoolisees = document.getElementById('alcoolisees').value.trim();
+            const nonAlcoolisees = document.getElementById('nonAlcoolisees').value.trim();
+
+            if (!alcoolisees || !nonAlcoolisees) {
+                document.getElementById('erreurAdmin').textContent = 'Veuillez remplir tous les champs.';
+                return;
+            }
+
+            boissonsAlcoolisees[niveau] = alcoolisees.split(',').map(b => b.trim());
+            boissonsNonAlcoolisees[niveau] = nonAlcoolisees.split(',').map(b => b.trim());
+            boissonsDisponibles = [...boissonsAlcoolisees[niveau], ...boissonsNonAlcoolisees[niveau]];
+
+            document.getElementById('erreurAdmin').textContent = '';
+            alert('Boissons sauvegardées avec succès!');
+            fermerAdmin();
         }
 
         showSection('sectionJoueurs');
