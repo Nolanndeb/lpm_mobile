@@ -10,7 +10,6 @@
             background-color: #f4f4f4;
             margin: 0;
             padding: 0;
-            position: relative;
         }
         .container {
             width: 90%;
@@ -97,33 +96,38 @@
         }
         .admin-button {
             position: fixed;
-            bottom: 20px;
-            left: 20px;
-            background-color: #ff5722;
+            bottom: 10px;
+            left: 10px;
+            background-color: #f44336;
             color: white;
             border: none;
-            padding: 10px 15px;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 16px;
             cursor: pointer;
             border-radius: 4px;
-            font-size: 16px;
+            z-index: 1000;
         }
         .admin-button:hover {
-            background-color: #e64a19;
+            background-color: #d32f2f;
         }
-        .admin-section {
-            display: none;
+        #adminSection {
             position: fixed;
-            top: 20px;
-            right: 20px;
-            width: 350px;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 100%;
             background-color: #fff;
-            border: 1px solid #ddd;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
             padding: 20px;
-            border-radius: 8px;
+            overflow-y: auto;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
         }
-        .admin-section.active {
-            display: block;
+        #adminSection.active {
+            transform: translateX(0);
         }
     </style>
 </head>
@@ -132,7 +136,7 @@
         <!-- Section 1: Sélection du nombre de joueurs et noms -->
         <div id="sectionJoueurs" class="section active">
             <h1>Le Petit Montagner</h1>
-            <h2> Entrez le nombre de joueurs</h2>
+            <h2>Entrez le nombre de joueurs</h2>
             <label for="nombreDeJoueurs">Nombre de joueurs:</label>
             <input type="number" id="nombreDeJoueurs" min="1" oninput="initialiserJoueurs()">
             <div id="formulaireJoueurs"></div>
@@ -141,7 +145,7 @@
 
         <!-- Section 2: Sélection du niveau -->
         <div id="sectionNiveau" class="section">
-            <h2> Choisissez un niveau</h2>
+            <h2>Choisissez un niveau</h2>
             <div id="niveauOptions"></div>
             <div class="button-container">
                 <button onclick="retourner('sectionJoueurs')">Retour</button>
@@ -152,7 +156,7 @@
 
         <!-- Section 3: Renseignement des scores -->
         <div id="sectionGrille" class="section">
-            <h2> Renseignement des scores</h2>
+            <h2>Renseignement des scores</h2>
             <div id="grilleJeu"></div>
             <div class="button-container">
                 <button onclick="retourner('sectionNiveau')">Retour</button>
@@ -163,7 +167,7 @@
 
         <!-- Section 4: Résultats -->
         <div id="sectionResultats" class="section">
-            <h2> Résultats</h2>
+            <h2>Résultats</h2>
             <div id="resultatsJeu"></div>
             <div class="button-container">
                 <button onclick="retourner('sectionGrille')">Retour</button>
@@ -172,23 +176,20 @@
     </div>
 
     <!-- Interface Admin -->
-    <div id="adminSection" class="admin-section">
+    <div id="adminSection">
         <h2>Interface Admin</h2>
+        <button onclick="fermerAdmin()">Fermer</button>
         <label for="niveauAdmin">Choisissez un niveau:</label>
         <select id="niveauAdmin" onchange="chargerBoissonsNiveau()">
             <option value="1">Niveau 1</option>
             <option value="2">Niveau 2</option>
             <option value="3">Niveau 3</option>
         </select>
-        <br>
         <label for="alcoolisees">Boissons alcoolisées:</label>
-        <textarea id="alcoolisees" rows="4" style="width: 100%;" placeholder="Entrez les boissons alcoolisées séparées par des virgules..."></textarea>
-        <br>
+        <textarea id="alcoolisees" rows="5"></textarea>
         <label for="nonAlcoolisees">Boissons non alcoolisées:</label>
-        <textarea id="nonAlcoolisees" rows="4" style="width: 100%;" placeholder="Entrez les boissons non alcoolisées séparées par des virgules..."></textarea>
-        <br>
+        <textarea id="nonAlcoolisees" rows="5"></textarea>
         <button onclick="sauvegarderBoissons()">Sauvegarder</button>
-        <button onclick="fermerAdmin()">Fermer</button>
         <p id="erreurAdmin" class="error"></p>
     </div>
 
@@ -209,7 +210,7 @@
         };
         let boissonsDisponibles = [];
         let boissonsDistribuees = [];
-        let codeAdmin = '2024';
+        const codeAdmin = '2024';
 
         function showSection(id) {
             document.querySelectorAll('.section').forEach(section => {
@@ -229,13 +230,14 @@
             joueursDiv.innerHTML = '';
             erreurDiv.textContent = '';
 
-            if (isNaN(nombreDeJoueurs) || nombreDeJoueurs <= 0) {
+            if (isNaN(nombreDeJoueurs) || nombreDeJoueurs < 1) {
+                erreurDiv.textContent = 'Veuillez entrer un nombre de joueurs valide.';
                 return;
             }
 
             for (let i = 0; i < nombreDeJoueurs; i++) {
                 const label = document.createElement('label');
-                label.textContent = `Nom du joueur ${i + 1}:`;
+                label.textContent = `Nom du joueur ${i + 1}: `;
                 const input = document.createElement('input');
                 input.type = 'text';
                 input.id = `joueur${i}`;
@@ -244,17 +246,17 @@
                 joueursDiv.appendChild(document.createElement('br'));
             }
 
-            const boutonValider = document.createElement('button');
-            boutonValider.textContent = 'Valider';
-            boutonValider.onclick = validerJoueurs;
-            joueursDiv.appendChild(boutonValider);
+            const button = document.createElement('button');
+            button.textContent = 'Enregistrer les joueurs';
+            button.onclick = enregistrerJoueurs;
+            joueursDiv.appendChild(button);
         }
 
-        function validerJoueurs() {
+        function enregistrerJoueurs() {
             const nombreDeJoueurs = parseInt(document.getElementById('nombreDeJoueurs').value);
-            const erreurDiv = document.getElementById('erreurJoueurs');
             nomsDesJoueurs = [];
-            erreurDiv.textContent = '';
+            scoresDesJoueurs = Array(nombreDeJoueurs).fill(0);
+            const erreurDiv = document.getElementById('erreurJoueurs');
 
             for (let i = 0; i < nombreDeJoueurs; i++) {
                 const joueurNom = document.getElementById(`joueur${i}`).value.trim();
@@ -404,12 +406,12 @@
         }
 
         function ouvrirAdmin() {
-            const code = prompt('Entrez le code admin:');
+            const code = prompt("Entrez le code admin:");
             if (code === codeAdmin) {
                 document.getElementById('adminSection').classList.add('active');
                 chargerBoissonsNiveau();
             } else {
-                alert('Code incorrect.');
+                alert("Code incorrect.");
             }
         }
 
@@ -419,29 +421,25 @@
 
         function chargerBoissonsNiveau() {
             const niveau = document.getElementById('niveauAdmin').value;
-            const alcoolisees = boissonsAlcoolisees[niveau].join(', ');
-            const nonAlcoolisees = boissonsNonAlcoolisees[niveau].join(', ');
-
-            document.getElementById('alcoolisees').value = alcoolisees;
-            document.getElementById('nonAlcoolisees').value = nonAlcoolisees;
+            document.getElementById('alcoolisees').value = boissonsAlcoolisees[niveau].join('\n');
+            document.getElementById('nonAlcoolisees').value = boissonsNonAlcoolisees[niveau].join('\n');
         }
 
         function sauvegarderBoissons() {
             const niveau = document.getElementById('niveauAdmin').value;
-            const alcoolisees = document.getElementById('alcoolisees').value.trim();
-            const nonAlcoolisees = document.getElementById('nonAlcoolisees').value.trim();
+            const alcoolisees = document.getElementById('alcoolisees').value.split('\n').map(b => b.trim()).filter(b => b);
+            const nonAlcoolisees = document.getElementById('nonAlcoolisees').value.split('\n').map(b => b.trim()).filter(b => b);
 
-            if (!alcoolisees || !nonAlcoolisees) {
-                document.getElementById('erreurAdmin').textContent = 'Veuillez remplir tous les champs.';
+            if (alcoolisees.length === 0 || nonAlcoolisees.length === 0) {
+                document.getElementById('erreurAdmin').textContent = 'Veuillez remplir toutes les listes de boissons.';
                 return;
             }
 
-            boissonsAlcoolisees[niveau] = alcoolisees.split(',').map(b => b.trim());
-            boissonsNonAlcoolisees[niveau] = nonAlcoolisees.split(',').map(b => b.trim());
-            boissonsDisponibles = [...boissonsAlcoolisees[niveau], ...boissonsNonAlcoolisees[niveau]];
+            boissonsAlcoolisees[niveau] = alcoolisees;
+            boissonsNonAlcoolisees[niveau] = nonAlcoolisees;
 
             document.getElementById('erreurAdmin').textContent = '';
-            alert('Boissons sauvegardées avec succès!');
+            alert('Boissons mises à jour avec succès.');
             fermerAdmin();
         }
 
