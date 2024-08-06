@@ -103,11 +103,8 @@
             <h1>Le Petit Montagner</h1>
             <h2> Entrez le nombre de joueurs</h2>
             <label for="nombreDeJoueurs">Nombre de joueurs:</label>
-            <input type="number" id="nombreDeJoueurs" min="1">
+            <input type="number" id="nombreDeJoueurs" min="1" oninput="initialiserJoueurs()">
             <div id="formulaireJoueurs"></div>
-            <div class="button-container">
-                <button onclick="initialiserJoueurs()">Valider</button>
-            </div>
             <p id="erreurJoueurs" class="error"></p>
         </div>
 
