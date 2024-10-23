@@ -4,154 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Le Petit Montagner</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #90EE90;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            width: 90%;
-            max-width: 1200px;
-            margin: auto;
-            padding: 20px;
-            background-color: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-        }
-        h1, h2 {
-            text-align: center;
-            color: #333;
-        }
-        .section {
-            display: none;
-        }
-        .section.active {
-            display: block;
-        }
-        input[type="number"], input[type="text"], select {
-            padding: 8px;
-            margin: 8px 0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 10px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 10px 0;
-            cursor: pointer;
-            border-radius: 4px;
-            width: 100%;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            margin: 20px 0;
-        }
-        table, th, td {
-            border: 1px solid #ddd;
-        }
-        th, td {
-            padding: 12px;
-            text-align: center;
-        }
-        th {
-            background-color: #f4f4f4;
-        }
-        .error {
-            color: red;
-            font-size: 14px;
-            text-align: center;
-        }
-        .button-container {
-            text-align: center;
-        }
-        .admin-button {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            background-color: #333;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .admin-button:hover {
-            background-color: #555;
-        }
-        .admin-section {
-            position: fixed;
-            top: 0;
-            right: 0;
-            width: 300px;
-            height: 100%;
-            background-color: #fff;
-            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
-            transform: translateX(100%);
-            transition: transform 0.3s ease;
-            padding: 20px;
-            box-sizing: border-box;
-            overflow-y: auto;
-        }
-        .admin-section.active {
-            transform: translateX(0);
-        }
-        .admin-section h2 {
-            margin-top: 0;
-        }
-        .admin-section button {
-            width: auto;
-            margin: 10px 0;
-        }
-        .admin-section textarea {
-            width: 100%;
-            height: 100px;
-            padding: 8px;
-            margin: 8px 0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-size: 14px;
-            resize: vertical;
-        }
-        @media (max-width: 600px) {
-            .container {
-                width: 100%;
-                padding: 10px;
-            }
-            button {
-                font-size: 14px;
-            }
-            input[type="number"], input[type="text"], select {
-                font-size: 14px;
-                padding: 12px;
-            }
-            th, td {
-                padding: 8px;
-            }
-            .admin-button {
-                left: 10px;
-                bottom: 10px;
-                font-size: 14px;
-                padding: 8px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <button class="admin-button" style="position: fixed; bottom: 20px; right: 20px;" onclick="ouvrirAdmin()">Admin</button>
     <div class="container">
         <!-- Section 1: Sélection du nombre de joueurs et noms -->
         <div id="sectionJoueurs" class="section active">
@@ -168,7 +24,6 @@
             <h2>Choisissez un niveau</h2>
             <div id="niveauOptions"></div>
             <div class="button-container">
-                <button onclick="retourner('sectionJoueurs')">Retour</button>
                 <button onclick="commencerJeu()">Commencer le jeu</button>
             </div>
             <p id="erreurNiveau" class="error"></p>
@@ -176,11 +31,10 @@
 
         <!-- Section 3: Renseignement des scores -->
         <div id="sectionGrille" class="section">
-            <h2>Renseignement des scores</h2>
+            <h2>Renseignement des scores - Tour <span id="numeroTour"></span></h2>
             <div id="grilleJeu"></div>
             <div class="button-container">
-                <button onclick="retourner('sectionNiveau')">Retour</button>
-                <button onclick="calculerResultats()">Calculer les résultats</button>
+                <button onclick="terminerTour()">Terminer le tour</button>
             </div>
             <p id="erreurGrille" class="error"></p>
         </div>
@@ -190,29 +44,27 @@
             <h2>Résultats</h2>
             <div id="resultatsJeu"></div>
             <div class="button-container">
-                <button onclick="retourner('sectionGrille')">Retour</button>
-                <button onclick="recommencerJeu()">Recommencer</button>
+                <button onclick="passerAuTourSuivant()">Tour suivant</button>
             </div>
         </div>
-    </div>
 
-    <button class="admin-button" onclick="ouvrirAdmin()">Admin</button>
-
-    <div id="adminSection" class="admin-section">
-        <h2>Interface Admin</h2>
-        <button onclick="fermerAdmin()">Fermer</button>
-        <label for="niveauAdmin">Choisissez un niveau:</label>
-        <select id="niveauAdmin" onchange="chargerBoissonsNiveau()">
-            <option value="1">Niveau 1</option>
-            <option value="2">Niveau 2</option>
-            <option value="3">Niveau 3</option>
-        </select>
-        <h3>Boissons alcoolisées:</h3>
-        <textarea id="alcoolisees"></textarea>
-        <h3>Boissons non alcoolisées:</h3>
-        <textarea id="nonAlcoolisees"></textarea>
-        <button onclick="sauvegarderBoissons()">Sauvegarder</button>
-        <p id="erreurAdmin" class="error"></p>
+        <!-- Section Admin: Modifier les boissons -->
+        <div id="sectionAdmin" class="section">
+            <h2>Interface Admin - Modifier les boissons</h2>
+            <label for="niveauAdmin">Choisissez un niveau:</label>
+            <select id="niveauAdmin" onchange="chargerBoissonsNiveau()">
+                <option value="1">Niveau 1</option>
+                <option value="2">Niveau 2</option>
+                <option value="3">Niveau 3</option>
+            </select>
+            <h3>Boissons alcoolisées:</h3>
+            <textarea id="alcoolisees"></textarea>
+            <h3>Boissons non alcoolisées:</h3>
+            <textarea id="nonAlcoolisees"></textarea>
+            <button onclick="sauvegarderBoissons()">Sauvegarder</button>
+            <button onclick="fermerAdmin()">Fermer</button>
+            <p id="erreurAdmin" class="error"></p>
+        </div>
     </div>
 
     <script>
@@ -230,17 +82,52 @@
             3: ['Soda', 'Jus d’orange', 'Eau', 'Limonade', 'Thé', 'Café', 'Milkshake', 'Smoothie', 'Chocolat chaud', 'Infusion']
         };
         let boissonsDisponibles = [];
-        let boissonsDistribuees = [];
+        let boissonsDistribueesParTour = [];
+        let perdantsParTour = [];
+        let tourActuel = 1;
+        let scoresParTour = [];
+
+        function ouvrirAdmin() {
+            const codeSaisi = prompt('Entrez le code admin:');
+            if (codeSaisi === codeAdmin) {
+                showSection('sectionAdmin');
+                chargerBoissonsNiveau();
+            } else {
+                alert('Code incorrect.');
+            }
+        }
+
+        function fermerAdmin() {
+            showSection('sectionJoueurs');
+        }
+
+        function chargerBoissonsNiveau() {
+            const niveau = parseInt(document.getElementById('niveauAdmin').value);
+            document.getElementById('alcoolisees').value = boissonsAlcoolisees[niveau].join(', ');
+            document.getElementById('nonAlcoolisees').value = boissonsNonAlcoolisees[niveau].join(', ');
+        }
+
+        function sauvegarderBoissons() {
+            const niveau = parseInt(document.getElementById('niveauAdmin').value);
+            const alcoolisees = document.getElementById('alcoolisees').value.split(',').map(item => item.trim()).filter(item => item !== '');
+            const nonAlcoolisees = document.getElementById('nonAlcoolisees').value.split(',').map(item => item.trim()).filter(item => item !== '');
+
+            if (alcoolisees.length === 0 || nonAlcoolisees.length === 0) {
+                document.getElementById('erreurAdmin').textContent = 'Veuillez entrer des boissons valides.';
+                return;
+            }
+
+            boissonsAlcoolisees[niveau] = alcoolisees;
+            boissonsNonAlcoolisees[niveau] = nonAlcoolisees;
+
+            fermerAdmin();
+        }
 
         function showSection(id) {
             document.querySelectorAll('.section').forEach(section => {
                 section.classList.remove('active');
             });
             document.getElementById(id).classList.add('active');
-        }
-
-        function retourner(section) {
-            showSection(section);
         }
 
         function initialiserJoueurs() {
@@ -276,6 +163,9 @@
             const nombreDeJoueurs = parseInt(document.getElementById('nombreDeJoueurs').value);
             nomsDesJoueurs = [];
             scoresDesJoueurs = Array(nombreDeJoueurs).fill(0);
+            scoresParTour = Array(nombreDeJoueurs).fill().map(() => []);
+            boissonsDistribueesParTour = [];
+            perdantsParTour = [];
             const erreurDiv = document.getElementById('erreurJoueurs');
 
             for (let i = 0; i < nombreDeJoueurs; i++) {
@@ -320,6 +210,7 @@
                 return;
             }
             definirBoissons(niveau);
+            tourActuel = 1;
             showSection('sectionGrille');
             afficherGrille();
         }
@@ -331,6 +222,7 @@
         function afficherGrille() {
             const grilleDiv = document.getElementById('grilleJeu');
             const erreurDiv = document.getElementById('erreurGrille');
+            document.getElementById('numeroTour').textContent = tourActuel;
             grilleDiv.innerHTML = '';
             erreurDiv.textContent = '';
 
@@ -341,7 +233,7 @@
             headerRow.appendChild(thEmpty);
 
             const thTour = document.createElement('th');
-            thTour.textContent = 'Tour';
+            thTour.textContent = `Tour ${tourActuel}`;
             headerRow.appendChild(thTour);
 
             const thTotal = document.createElement('th');
@@ -368,7 +260,7 @@
 
                 const tdTotal = document.createElement('td');
                 tdTotal.id = `total${index}`;
-                tdTotal.textContent = '0';
+                tdTotal.textContent = scoresDesJoueurs[index];
                 row.appendChild(tdTotal);
 
                 table.appendChild(row);
@@ -379,37 +271,29 @@
 
         function mettreAJourScore(joueurIndex) {
             const score = parseInt(document.getElementById(`score${joueurIndex}`).value) || 0;
-
-            if (score >= 30) {
-                scoresDesJoueurs[joueurIndex] = 0;
-                alert(`Le score du joueur ${nomsDesJoueurs[joueurIndex]} est annulé car supérieur ou égal à 30.`);
-            } else {
-                scoresDesJoueurs[joueurIndex] = score;
-            }
-
+            scoresParTour[joueurIndex][tourActuel - 1] = score;
+            scoresDesJoueurs[joueurIndex] += score;
             document.getElementById(`total${joueurIndex}`).textContent = scoresDesJoueurs[joueurIndex];
         }
 
-        function calculerResultats() {
+        function terminerTour() {
             const scoresInvalides = Array.from(document.querySelectorAll('input[type="number"]')).some(input => input.value === '');
             if (scoresInvalides) {
                 document.getElementById('erreurGrille').textContent = 'Tous les scores doivent être remplis.';
                 return;
             }
-            afficherResultats();
+
+            afficherResultatsTour();
         }
 
-        function afficherResultats() {
+        function afficherResultatsTour() {
             const resultatsDiv = document.getElementById('resultatsJeu');
-            resultatsDiv.innerHTML = '<h2>Scores des joueurs:</h2>';
-
-            let minScore = Math.min(...scoresDesJoueurs);
-            let perdantIndex = scoresDesJoueurs.indexOf(minScore);
+            resultatsDiv.innerHTML = `<h2>Résultats du Tour ${tourActuel}:</h2>`;
 
             let boissonsPourResultats = [...boissonsDisponibles];
             boissonsPourResultats = boissonsPourResultats.sort(() => Math.random() - 0.5);
 
-            boissonsDistribuees = [];
+            let boissonsDistribuees = [];
             nomsDesJoueurs.forEach((joueur, index) => {
                 const p = document.createElement('p');
                 const boisson = boissonsPourResultats.shift();
@@ -417,10 +301,58 @@
                 p.textContent = `${joueur}: ${scoresDesJoueurs[index]} points - Boisson: ${boisson}`;
                 resultatsDiv.appendChild(p);
             });
+            boissonsDistribueesParTour.push(boissonsDistribuees);
+
+            let minScore = Math.min(...scoresDesJoueurs);
+            let perdantIndex = scoresDesJoueurs.indexOf(minScore);
+            perdantsParTour.push(nomsDesJoueurs[perdantIndex]);
 
             const perdant = document.createElement('h3');
-            perdant.textContent = `Le perdant est ${nomsDesJoueurs[perdantIndex]} avec ${scoresDesJoueurs[perdantIndex]} points. Il doit payer la tournée.`;
+            perdant.textContent = `Le perdant de ce tour est ${nomsDesJoueurs[perdantIndex]} avec ${scoresDesJoueurs[perdantIndex]} points. Il doit payer la tournée.`;
             resultatsDiv.appendChild(perdant);
+
+            showSection('sectionResultats');
+        }
+
+        function passerAuTourSuivant() {
+            if (tourActuel < nomsDesJoueurs.length) {
+                tourActuel++;
+                showSection('sectionGrille');
+                afficherGrille();
+            } else {
+                afficherResultats();
+            }
+        }
+
+        function afficherResultats() {
+            const resultatsDiv = document.getElementById('resultatsJeu');
+            resultatsDiv.innerHTML = '<h2>Résumé de la partie:</h2>';
+
+            scoresParTour.forEach((scores, tour) => {
+                const tourHeader = document.createElement('h3');
+                tourHeader.textContent = `Résultats du Tour ${tour + 1}:`;
+                resultatsDiv.appendChild(tourHeader);
+
+                scores.forEach((score, index) => {
+                    const p = document.createElement('p');
+                    p.textContent = `${nomsDesJoueurs[index]}: ${score} points`;
+                    resultatsDiv.appendChild(p);
+                });
+
+                const boissonsHeader = document.createElement('h4');
+                boissonsHeader.textContent = `Tournée de boissons du Tour ${tour + 1}:`;
+                resultatsDiv.appendChild(boissonsHeader);
+
+                boissonsDistribueesParTour[tour].forEach(({ joueur, boisson }) => {
+                    const pBoisson = document.createElement('p');
+                    pBoisson.textContent = `${joueur} a reçu : ${boisson}`;
+                    resultatsDiv.appendChild(pBoisson);
+                });
+
+                const perdant = document.createElement('h4');
+                perdant.textContent = `Le perdant du Tour ${tour + 1} est ${perdantsParTour[tour]}, qui doit payer la tournée.`;
+                resultatsDiv.appendChild(perdant);
+            });
 
             showSection('sectionResultats');
         }
@@ -428,42 +360,6 @@
         function recommencerJeu() {
             showSection('sectionJoueurs');
             // Les noms des joueurs restent enregistrés
-        }
-
-        function ouvrirAdmin() {
-            const codeSaisi = prompt('Entrez le code admin:');
-            if (codeSaisi === codeAdmin) {
-                document.getElementById('adminSection').classList.add('active');
-                chargerBoissonsNiveau(); // Charger les boissons du niveau actuel dans l'interface admin
-            } else {
-                alert('Code incorrect.');
-            }
-        }
-
-        function fermerAdmin() {
-            document.getElementById('adminSection').classList.remove('active');
-        }
-
-        function chargerBoissonsNiveau() {
-            const niveau = parseInt(document.getElementById('niveauAdmin').value);
-            document.getElementById('alcoolisees').value = boissonsAlcoolisees[niveau].join(', ');
-            document.getElementById('nonAlcoolisees').value = boissonsNonAlcoolisees[niveau].join(', ');
-        }
-
-        function sauvegarderBoissons() {
-            const niveau = parseInt(document.getElementById('niveauAdmin').value);
-            const alcoolisees = document.getElementById('alcoolisees').value.split(',').map(item => item.trim()).filter(item => item !== '');
-            const nonAlcoolisees = document.getElementById('nonAlcoolisees').value.split(',').map(item => item.trim()).filter(item => item !== '');
-            
-            if (alcoolisees.length === 0 || nonAlcoolisees.length === 0) {
-                document.getElementById('erreurAdmin').textContent = 'Veuillez entrer des boissons valides.';
-                return;
-            }
-
-            boissonsAlcoolisees[niveau] = alcoolisees;
-            boissonsNonAlcoolisees[niveau] = nonAlcoolisees;
-
-            fermerAdmin();
         }
 
         showSection('sectionJoueurs');
